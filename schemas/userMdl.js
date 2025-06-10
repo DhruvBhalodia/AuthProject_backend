@@ -6,4 +6,18 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true }
 }, { timestamps: true });
 
-module.exports = mongoose.model('User', userSchema);
+const User = mongoose.model('User', userSchema);
+
+const findUser = async (email) => {
+  return await User.findOne({ email });
+};
+
+const createUser = async (data) => {
+  return await User.create(data);
+};
+
+module.exports = {
+  User,
+  findUser,
+  createUser
+};
