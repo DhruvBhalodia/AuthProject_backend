@@ -1,5 +1,5 @@
 const { findUser, createUser } = require('../../schemas/userMdl');
-const { generateToken, encryptPassword, comparePassword } = require('../../helper/authHelper');
+const { generateToken, generateRefreshToken, encryptPassword, comparePassword, verifyRefreshToken } = require('../../helper/authHelper');
 
 exports.signup = async ({ username, email, password }) => {
   const existingUser = await findUser(email);
@@ -22,9 +22,19 @@ exports.login = async ({ email, password }) => {
   if (!isMatch) throw new Error("Invalid credentials");
 
   const token = generateToken(user._id);
+  const refreshToken = generateRefreshToken(user);
 
   return {
     token,
+    refreshToken,
     user: { id: user._id, username: user.username, email: user.email }
   };
+};
+
+exports.refreshAccessToken = async (refreshToken) => {
+  if (!refreshToken) throw new Error("No refresh token");
+  const user = await verifyRefreshToken(refreshToken);
+  const newAccessToken = generateToken(user.id);
+
+  return [newAccessToken, user.id];
 };
