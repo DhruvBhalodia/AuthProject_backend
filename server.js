@@ -3,6 +3,7 @@ const dotenv = require('dotenv');
 const connectDB = require('./config');
 const routes = require('./indexRoutes');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 
 dotenv.config();
 
@@ -12,6 +13,7 @@ app.use(cors({
   origin: 'http://localhost:3000', 
   credentials: true           
 }));
+app.use(cookieParser());
 connectDB();
 
 app.use('/api', routes);
