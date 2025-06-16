@@ -25,16 +25,12 @@ exports.signup = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const data = await authService.login(req.body);
-    res.cookie('refreshToken', data.refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'Strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000
-    });
-    res.status(200).json({
-      accessToken: data.token,
-      user: data.user
-    });
+    res.setHeader('x-refresh-token', data.refreshToken)
+       .status(200).json({
+          accessToken: data.token,
+          refreshToken: data.refreshToken,
+          user: data.user
+        });
   } catch (err) {
     res.status(401).json({ message: err.message });
   }
@@ -52,9 +48,9 @@ exports.logout = (req, res) => {
 exports.refresh = async (req, res) => {
   try {
     const token = req.cookies.refreshToken;
-    const [accessToken, userId]  = await authService.refreshAccessToken(token);
+    const [accessToken, user]  = await authService.refresh(token);
     res.status(200).json({  accessToken: accessToken,
-      userId: userId });
+      userId: user });
   } catch (err) {
     res.status(403).json({ message: err.message });
   }

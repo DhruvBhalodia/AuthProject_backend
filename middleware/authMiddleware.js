@@ -7,8 +7,8 @@ exports.verifyToken = async (req, res, next) => {
   const token = authHeader.split(' ')[1];
 
   try {
-    const user = await verifyAccessToken(token);
-    req.user = user;
+    const userPayload = await verifyAccessToken(token);
+    req.user = userPayload;
     next();
   } catch (err) {
     res.status(403).json({ message: err.message });
