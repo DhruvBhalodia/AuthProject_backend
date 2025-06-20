@@ -14,7 +14,7 @@ exports.product = async (req, res, next) => {
 exports.signup = async (req, res, next) => {
   try {
     const user = await authService.signup(req.body);
-    res.status(201).json({ message: "User created", user });
+    res.status(201).json({ user });
   } catch (err) {
     next(err);
   }
