@@ -19,6 +19,9 @@ connectDB();
 
 app.use('/api', routes);
 
+const errorHandler = require('./middleware/errorHandler');
+app.use(errorHandler);
+
 app.listen(config.PORT, () => {
   console.log(`Server running on port ${config.PORT}`);
 });

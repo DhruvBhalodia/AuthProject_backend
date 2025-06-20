@@ -1,17 +1,30 @@
-const { verifyAccessToken } = require('../helper/authHelper');
+const { verifyAccessToken, verifyRefreshToken } = require('../helper/authHelper');
 
 exports.verifyToken = async (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  if (!authHeader) return res.status(401).json({ message: 'No token provided' });
-
-  const token = authHeader.split(' ')[1];
-
   try {
-    const userPayload = await verifyAccessToken(token);
-    req.user = userPayload;
+    const authHeader = req.headers['authorization'];
+    if (!authHeader) throw new Error('MISSING_ACCESS_TOKEN');
+
+    const token = authHeader.split(' ')[1];
+      const userPayload = await verifyAccessToken(token);
+      req.user = userPayload;
+      next();
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+exports.verifyRefreshToken = async (req, res, next) => {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) throw new Error('MISSING_REFRESH_TOKEN');
+
+    const user = await verifyRefreshToken(refreshToken);
+    req.user = user;
     next();
   } catch (err) {
-    res.status(403).json({ message: err.message });
+    next(err);
   }
 };
 

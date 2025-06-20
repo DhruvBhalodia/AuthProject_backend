@@ -1,38 +1,36 @@
 const authService = require('./auth.service');
 const axios = require('axios');
+const generateToken = require('../../helper/authHelper')
 
-exports.product = async (req, res) => {
+exports.product = async (req, res, next) => {
   try {
     const response = await axios.get('https://dummyjson.com/products');
     res.json(response.data); 
-  } catch (error) {
-    res.status(500).json({
-      message: 'Failed to fetch products',
-      error: error.message
-    });
+  } catch (err) {
+    next(err);
   }
 }
 
-exports.signup = async (req, res) => {
+exports.signup = async (req, res, next) => {
   try {
     const user = await authService.signup(req.body);
     res.status(201).json({ message: "User created", user });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    next(err);
   }
 };
 
-exports.login = async (req, res) => {
+exports.login = async (req, res, next) => {
   try {
     const data = await authService.login(req.body);
     res.setHeader('x-refresh-token', data.refreshToken)
        .status(200).json({
-          accessToken: data.token,
+          accessToken: data.accessToken,
           refreshToken: data.refreshToken,
           user: data.user
         });
   } catch (err) {
-    res.status(401).json({ message: err.message });
+    next(err);
   }
 };
 
@@ -45,13 +43,14 @@ exports.logout = (req, res) => {
   res.status(200).json({ message: 'Logged out successfully' });
 };
 
-exports.refresh = async (req, res) => {
+exports.refresh = async (req, res, next) => {
   try {
-    const token = req.cookies.refreshToken;
-    const [accessToken, user]  = await authService.refresh(token);
-    res.status(200).json({  accessToken: accessToken,
-      userId: user });
+    const newAccessToken = generateToken(req.user);
+    res.status(200).json({
+      accessToken: newAccessToken,
+      userId: req.user.id
+    });
   } catch (err) {
-    res.status(403).json({ message: err.message });
+    next(err);
   }
 };
