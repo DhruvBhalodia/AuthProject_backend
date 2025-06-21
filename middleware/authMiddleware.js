@@ -1,4 +1,5 @@
 const { verifyAccessToken, verifyRefreshToken } = require('../helper/authHelper');
+const { findUserById } = require('../schemas/userMdl');
 
 exports.verifyToken = async (req, res, next) => {
   try {
@@ -6,9 +7,10 @@ exports.verifyToken = async (req, res, next) => {
     if (!authHeader) throw new Error('MISSING_ACCESS_TOKEN');
 
     const token = authHeader.split(' ')[1];
-      const userPayload = await verifyAccessToken(token);
-      req.user = userPayload;
-      next();
+    const payload = await verifyAccessToken(token);
+    const user = await findUserById(payload.id);
+    req.user = user;
+    next();
   } catch (err) {
     next(err);
   }
