@@ -5,11 +5,21 @@ const { config } = require('../config');
 exports.verifyAccessToken = (token) => {
   return new Promise((resolve, reject) => {
     jwt.verify(token, config.JWT_SECRET, (err, decoded) => {
-      if (err) return reject(new Error('Invalid or expired token'));
+      if (err) return reject(new Error('INVALID_ACCESS_TOKEN'));
       resolve(decoded);
     });
   });
 };
+
+exports.verifyRefreshToken = (token) => {
+  return new Promise((resolve, reject) => {
+    jwt.verify(token, config.JWT_REFRESH_SECRET, (err, decoded) => {
+      if (err) return reject(new Error('INVALID_REFRESH_TOKEN'));
+      resolve(decoded);
+    });
+  });
+};
+
 
 exports.generateToken = (user) => {
   return jwt.sign(
@@ -32,14 +42,4 @@ exports.generateRefreshToken = (user) => {
 };
 exports.comparePassword = async (plainPassword, hashedPassword) => {
   return await bcrypt.compare(plainPassword, hashedPassword);
-};
-
-exports.verifyRefreshToken = (token) => {
-  return new Promise((resolve, reject) => {
-    const jwt = require('jsonwebtoken');
-    jwt.verify(token, config.JWT_REFRESH_SECRET, (err, decoded) => {
-      if (err) return reject(err);
-      resolve(decoded);
-    });
-  });
 };

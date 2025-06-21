@@ -12,6 +12,10 @@ const findUser = async (email) => {
   return await User.findOne({ email });
 };
 
+const findUserById = async (id) => {
+  return await User.findById(id).select('-password');
+};
+
 const createUser = async (data) => {
   return await User.create(data);
 };
@@ -19,5 +23,6 @@ const createUser = async (data) => {
 module.exports = {
   User,
   findUser,
+  findUserById,
   createUser
 };
